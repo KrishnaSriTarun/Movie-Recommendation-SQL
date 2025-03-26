@@ -1,4 +1,5 @@
-use `movie recomendation`;
+-- Create a database named 'movie_recommendation'
+CREATE DATABASE movie_recommendation;
 -- User Table
 Create table Users(
 UserID int primary key auto_increment,
@@ -89,44 +90,103 @@ INSERT INTO WatchHistory (UserID, MovieID) VALUES
 (1, 5),
 (2, 3);
 
-select * from Movies;
 
-select * from Movies where ReleaseYear>2010;
+USE `movie_recommendation`;
 
-select Users.Name AS UserName,Movies.Title AS MovieTitle,ReleaseYear,Movies.Director,ReviewText from Reviews 
-join Users on Reviews.UserID=Users.UserID 
-join Movies on Reviews.MovieID=Movies.MovieID;
+-- Retrieve all movies in the database
+SELECT * FROM Movies;
 
-select Movies.Title As MovieName,Rating,Movies.Director from Rating join Movies on Rating.MovieID = Movies.MovieID;
+-- Get all movies released after 2010
+SELECT * FROM Movies WHERE ReleaseYear > 2010;
 
-select * from WatchHistory join Users on WatchHistory.UserID=Users.UserID where Users.UserID=1;
-select * from Movies where Director="Christopher Nolan";
-select * from Movies where IMDB_Rating>8.5;
-select * from Users  where age>25 order by age desc;
-select * from Reviews order by ReviewDate desc;
-select * from Movies order by IMDB_Rating desc limit 3;
-select count(userID) from users;
-select avg(IMDB_Rating) from Movies;
+-- Fetch user reviews along with movie details
+SELECT Users.Name AS UserName, Movies.Title AS MovieTitle, ReleaseYear, Movies.Director, ReviewText 
+FROM Reviews 
+JOIN Users ON Reviews.UserID = Users.UserID 
+JOIN Movies ON Reviews.MovieID = Movies.MovieID;
 
-SELECT Users.UserID, Users.Name, COUNT(Rating.MovieID) AS MoviesRated FROM Users 
-LEFT JOIN Rating ON Users.UserID = Rating.UserID GROUP BY Users.UserID, Users.Name;
+-- Get all movie ratings along with their directors
+SELECT Movies.Title AS MovieName, Rating, Movies.Director 
+FROM Rating 
+JOIN Movies ON Rating.MovieID = Movies.MovieID;
 
-Select Movies.MovieID,Movies.Title,count(Reviews.ReviewID) from Reviews join movies on Reviews.MovieID =Movies.MovieID GROUP BY Movies.MovieID, Movies.Title;
+-- Fetch the watch history of a specific user (UserID = 1)
+SELECT * FROM WatchHistory 
+JOIN Users ON WatchHistory.UserID = Users.UserID 
+WHERE Users.UserID = 1;
 
-select Movies.MovieID, Movies.Title, COUNT(WatchHistory.MovieID) AS WatchCount  from WatchHistory 
-join Movies on WatchHistory.MovieID=Movies.MovieID group by Movies.MovieID,Movies.Title order by WatchCount desc limit 1;
+-- Get all movies directed by Christopher Nolan
+SELECT * FROM Movies WHERE Director = "Christopher Nolan";
 
-select Movies.MovieID,Movies.Title,avg(Rating) as AvgRating from Rating join Movies on Rating.MovieID=Movies.MovieID group by Movies.MovieID,Movies.Title;
+-- Retrieve movies with an IMDB rating greater than 8.5
+SELECT * FROM Movies WHERE IMDB_Rating > 8.5;
 
-select Users.UserID,Users.Name,Movies.Title from WatchHistory join users on WatchHistory.UserID=Users.userID 
-join Movies on WatchHistory.movieID=movies.movieID where movies.Title="Inception";
+-- Get all users older than 25 and order them by age in descending order
+SELECT * FROM Users WHERE Age > 25 ORDER BY Age DESC;
 
-SELECT DISTINCT Users.UserID, Users.Name FROM Rating JOIN Users ON Rating.UserID = Users.UserID 
-LEFT JOIN Reviews ON Rating.UserID = Reviews.UserID AND Rating.MovieID = Reviews.MovieID WHERE Reviews.ReviewID IS NULL;
+-- Fetch all reviews sorted by the latest review date
+SELECT * FROM Reviews ORDER BY ReviewDate DESC;
 
-select Users.UserID, Users.Name, COUNT(WatchHistory.MovieID) AS MoviesWatched FROM WatchHistory 
-JOIN Users ON WatchHistory.UserID = Users.UserID group by Users.UserID, Users.Name having count( WatchHistory.movieID)>1;
+-- Get the top 3 highest-rated movies
+SELECT * FROM Movies ORDER BY IMDB_Rating DESC LIMIT 3;
 
-SELECT Movies.MovieID, Movies.Title, AVG(Rating.Rating) AS AverageRating FROM Rating JOIN Movies ON Rating.MovieID = Movies.MovieID
-GROUP BY Movies.MovieID, Movies.Title ORDER BY AverageRating DESC LIMIT 1;
+-- Count the number of users in the database
+SELECT COUNT(UserID) FROM Users;
 
+-- Get the average IMDB rating of all movies
+SELECT AVG(IMDB_Rating) FROM Movies;
+
+-- Count the number of movies each user has rated
+SELECT Users.UserID, Users.Name, COUNT(Rating.MovieID) AS MoviesRated 
+FROM Users 
+LEFT JOIN Rating ON Users.UserID = Rating.UserID 
+GROUP BY Users.UserID, Users.Name;
+
+-- Count the number of reviews per movie
+SELECT Movies.MovieID, Movies.Title, COUNT(Reviews.ReviewID) 
+FROM Reviews 
+JOIN Movies ON Reviews.MovieID = Movies.MovieID 
+GROUP BY Movies.MovieID, Movies.Title;
+
+-- Find the most-watched movie based on watch history
+SELECT Movies.MovieID, Movies.Title, COUNT(WatchHistory.MovieID) AS WatchCount  
+FROM WatchHistory 
+JOIN Movies ON WatchHistory.MovieID = Movies.MovieID 
+GROUP BY Movies.MovieID, Movies.Title 
+ORDER BY WatchCount DESC 
+LIMIT 1;
+
+-- Get the average rating of each movie
+SELECT Movies.MovieID, Movies.Title, AVG(Rating) AS AvgRating 
+FROM Rating 
+JOIN Movies ON Rating.MovieID = Movies.MovieID 
+GROUP BY Movies.MovieID, Movies.Title;
+
+-- Find users who watched a specific movie (e.g., 'Inception')
+SELECT Users.UserID, Users.Name, Movies.Title 
+FROM WatchHistory 
+JOIN Users ON WatchHistory.UserID = Users.UserID 
+JOIN Movies ON WatchHistory.MovieID = Movies.MovieID 
+WHERE Movies.Title = "Inception";
+
+-- Identify users who have rated movies but haven't written reviews
+SELECT DISTINCT Users.UserID, Users.Name 
+FROM Rating 
+JOIN Users ON Rating.UserID = Users.UserID 
+LEFT JOIN Reviews ON Rating.UserID = Reviews.UserID AND Rating.MovieID = Reviews.MovieID 
+WHERE Reviews.ReviewID IS NULL;
+
+-- Get users who have watched more than one movie
+SELECT Users.UserID, Users.Name, COUNT(WatchHistory.MovieID) AS MoviesWatched 
+FROM WatchHistory 
+JOIN Users ON WatchHistory.UserID = Users.UserID 
+GROUP BY Users.UserID, Users.Name 
+HAVING COUNT(WatchHistory.MovieID) > 1;
+
+-- Find the highest-rated movie based on user ratings
+SELECT Movies.MovieID, Movies.Title, AVG(Rating.Rating) AS AverageRating 
+FROM Rating 
+JOIN Movies ON Rating.MovieID = Movies.MovieID 
+GROUP BY Movies.MovieID, Movies.Title 
+ORDER BY AverageRating DESC 
+LIMIT 1;
